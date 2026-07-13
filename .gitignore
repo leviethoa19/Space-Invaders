@@ -1,0 +1,36 @@
+# Vendor SDKs (regenerate via STM32CubeMX / TouchGFX Designer using SpaceInvaders.ioc / SpaceInvaders.touchgfx)
+/Drivers/
+/Middlewares/
+
+# STM32CubeIDE build output
+/STM32CubeIDE/Debug/
+/STM32CubeIDE/Release/
+/STM32CubeIDE/.settings/
+
+# Headless build temp workspace
+/.buildws/
+
+# TouchGFX simulator build output
+/TouchGFX/simulator/**/obj/
+/TouchGFX/simulator/**/Debug/
+/TouchGFX/simulator/**/Release/
+/TouchGFX/simulator/**/.vs/
+
+# Generic build artifacts
+*.o
+*.d
+*.elf
+*.map
+*.bin
+*.hex
+*.list
+*.su
+*.launch.bak
+
+# OS / editor junk
+Thumbs.db
+.DS_Store
+*.user
+
+# Scratch build logs generated while iterating
+build_log*.txt

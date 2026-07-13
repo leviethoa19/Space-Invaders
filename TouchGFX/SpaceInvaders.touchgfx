@@ -1,0 +1,990 @@
+{
+  "Application": {
+    "Screens": [
+      {
+        "Name": "Screen1",
+        "Components": [
+          {
+            "Type": "Image",
+            "Name": "bgImage",
+            "Width": 240,
+            "Height": 320,
+            "RelativeFilename": "TitleBackground.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "logoImage",
+            "X": 16,
+            "Y": 104,
+            "Width": 208,
+            "Height": 76,
+            "RelativeFilename": "LogoSpaceInvaders.png"
+          },
+          {
+            "Type": "TextArea",
+            "Name": "hiScoreText",
+            "Y": 194,
+            "Width": 22,
+            "Height": 17,
+            "TextId": "__SingleUse_HO7N",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 205,
+              "Blue": 60
+            },
+            "AutoSize": true,
+            "Wildcard1": {}
+          },
+          {
+            "Type": "Button",
+            "Name": "button1",
+            "X": 30,
+            "Y": 236,
+            "Width": 180,
+            "Height": 36,
+            "Pressed": "ButtonNewGame.png",
+            "Released": "ButtonNewGame.png"
+          }
+        ],
+        "Interactions": [
+          {
+            "InteractionName": "Interaction1",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "button1"
+            },
+            "Action": {
+              "Type": "ActionGotoScreen",
+              "ScreenTransitionType": "ScreenTransitionCover",
+              "ScreenTransitionDirection": "East",
+              "ActionComponent": "Screen2"
+            }
+          }
+        ]
+      },
+      {
+        "Name": "Screen2",
+        "Components": [
+          {
+            "Type": "Box",
+            "Name": "bgBox",
+            "Width": 240,
+            "Height": 320
+          },
+          {
+            "Type": "Image",
+            "Name": "alien0",
+            "X": 22,
+            "Y": 52,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienLarge1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien1",
+            "X": 42,
+            "Y": 52,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienLarge1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien2",
+            "X": 62,
+            "Y": 52,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienLarge1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien3",
+            "X": 82,
+            "Y": 52,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienLarge1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien4",
+            "X": 102,
+            "Y": 52,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienLarge1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien5",
+            "X": 122,
+            "Y": 52,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienLarge1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien6",
+            "X": 142,
+            "Y": 52,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienLarge1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien7",
+            "X": 162,
+            "Y": 52,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienLarge1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien8",
+            "X": 182,
+            "Y": 52,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienLarge1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien9",
+            "X": 202,
+            "Y": 52,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienLarge1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien10",
+            "X": 22,
+            "Y": 78,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien11",
+            "X": 42,
+            "Y": 78,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien12",
+            "X": 62,
+            "Y": 78,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien13",
+            "X": 82,
+            "Y": 78,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien14",
+            "X": 102,
+            "Y": 78,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien15",
+            "X": 122,
+            "Y": 78,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien16",
+            "X": 142,
+            "Y": 78,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien17",
+            "X": 162,
+            "Y": 78,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien18",
+            "X": 182,
+            "Y": 78,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien19",
+            "X": 202,
+            "Y": 78,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien20",
+            "X": 22,
+            "Y": 104,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien21",
+            "X": 42,
+            "Y": 104,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien22",
+            "X": 62,
+            "Y": 104,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien23",
+            "X": 82,
+            "Y": 104,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien24",
+            "X": 102,
+            "Y": 104,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien25",
+            "X": 122,
+            "Y": 104,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien26",
+            "X": 142,
+            "Y": 104,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien27",
+            "X": 162,
+            "Y": 104,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien28",
+            "X": 182,
+            "Y": 104,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien29",
+            "X": 202,
+            "Y": 104,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienMedium1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien30",
+            "X": 22,
+            "Y": 130,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienSmall1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien31",
+            "X": 42,
+            "Y": 130,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienSmall1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien32",
+            "X": 62,
+            "Y": 130,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienSmall1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien33",
+            "X": 82,
+            "Y": 130,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienSmall1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien34",
+            "X": 102,
+            "Y": 130,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienSmall1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien35",
+            "X": 122,
+            "Y": 130,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienSmall1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien36",
+            "X": 142,
+            "Y": 130,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienSmall1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien37",
+            "X": 162,
+            "Y": 130,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienSmall1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien38",
+            "X": 182,
+            "Y": 130,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienSmall1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "alien39",
+            "X": 202,
+            "Y": 130,
+            "Width": 15,
+            "Height": 15,
+            "RelativeFilename": "AlienSmall1.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "boss",
+            "X": 85,
+            "Y": 66,
+            "Width": 70,
+            "Height": 31,
+            "Visible": false,
+            "RelativeFilename": "BossShip.png"
+          },
+          {
+            "Type": "Box",
+            "Name": "bossHpBg",
+            "X": 61,
+            "Y": 110,
+            "Width": 118,
+            "Height": 5,
+            "Visible": false,
+            "Color": {
+              "Red": 70,
+              "Green": 70,
+              "Blue": 70
+            }
+          },
+          {
+            "Type": "Box",
+            "Name": "bossHpFg",
+            "X": 61,
+            "Y": 110,
+            "Width": 118,
+            "Height": 5,
+            "Visible": false,
+            "Color": {
+              "Red": 220,
+              "Green": 40,
+              "Blue": 40
+            }
+          },
+          {
+            "Type": "TextArea",
+            "Name": "bossLabelText",
+            "X": 30,
+            "Y": 36,
+            "Width": 180,
+            "Height": 12,
+            "Visible": false,
+            "TextId": "__SingleUse_BOSSLABEL1",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            }
+          },
+          {
+            "Type": "Image",
+            "Name": "bunker0",
+            "X": 40,
+            "Y": 220,
+            "Width": 28,
+            "Height": 20,
+            "RelativeFilename": "ShelterFull.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "bunker1",
+            "X": 107,
+            "Y": 220,
+            "Width": 28,
+            "Height": 20,
+            "RelativeFilename": "ShelterFull.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "bunker2",
+            "X": 174,
+            "Y": 220,
+            "Width": 28,
+            "Height": 20,
+            "RelativeFilename": "ShelterFull.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "player",
+            "X": 107,
+            "Y": 276,
+            "Width": 26,
+            "Height": 16,
+            "RelativeFilename": "PlayerShip.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "shieldIcon",
+            "Y": -40,
+            "Width": 16,
+            "Height": 10,
+            "Visible": false,
+            "RelativeFilename": "ShieldIcon.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "playerBullet0",
+            "Y": -20,
+            "Width": 3,
+            "Height": 8,
+            "Visible": false,
+            "RelativeFilename": "BulletPlayer.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "playerBullet1",
+            "Y": -20,
+            "Width": 3,
+            "Height": 8,
+            "Visible": false,
+            "RelativeFilename": "BulletPlayer.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "playerBullet2",
+            "Y": -20,
+            "Width": 3,
+            "Height": 8,
+            "Visible": false,
+            "RelativeFilename": "BulletPlayer.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "enemyBullet0",
+            "Y": -20,
+            "Width": 3,
+            "Height": 8,
+            "Visible": false,
+            "RelativeFilename": "BulletEnemy.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "enemyBullet1",
+            "Y": -20,
+            "Width": 3,
+            "Height": 8,
+            "Visible": false,
+            "RelativeFilename": "BulletEnemy.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "enemyBullet2",
+            "Y": -20,
+            "Width": 3,
+            "Height": 8,
+            "Visible": false,
+            "RelativeFilename": "BulletEnemy.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "explosion",
+            "Y": -40,
+            "Width": 24,
+            "Height": 15,
+            "Visible": false,
+            "RelativeFilename": "ExplosionAlien.png"
+          },
+          {
+            "Type": "Box",
+            "Name": "powerItem",
+            "Y": -20,
+            "Width": 16,
+            "Height": 16,
+            "Visible": false,
+            "Color": {
+              "Red": 255,
+              "Green": 220,
+              "Blue": 40
+            }
+          },
+          {
+            "Type": "FlexButton",
+            "Name": "flexButton1",
+            "X": 6,
+            "Y": 304,
+            "Width": 14,
+            "Height": 14,
+            "ButtonTrigger": {
+              "Type": "ClickButtonTrigger"
+            },
+            "ButtonStyles": [
+              {
+                "Type": "IconButtonStyle",
+                "IconReleased": "HomeIconReleased.png",
+                "IconPressed": "HomeIconPressed.png"
+              }
+            ]
+          },
+          {
+            "Type": "FlexButton",
+            "Name": "pauseButton",
+            "X": 113,
+            "Y": 304,
+            "Width": 14,
+            "Height": 14,
+            "ButtonTrigger": {
+              "Type": "ClickButtonTrigger"
+            },
+            "ButtonStyles": [
+              {
+                "Type": "IconButtonStyle",
+                "IconReleased": "PauseIconReleased.png",
+                "IconPressed": "PauseIconPressed.png"
+              }
+            ]
+          },
+          {
+            "Type": "FlexButton",
+            "Name": "fireButton",
+            "X": 220,
+            "Y": 304,
+            "Width": 14,
+            "Height": 14,
+            "ButtonTrigger": {
+              "Type": "ClickButtonTrigger"
+            },
+            "ButtonStyles": [
+              {
+                "Type": "IconButtonStyle",
+                "IconReleased": "FireIconReleased.png",
+                "IconPressed": "FireIconPressed.png"
+              }
+            ]
+          },
+          {
+            "Type": "TextArea",
+            "Name": "textArea1",
+            "X": 8,
+            "Y": 8,
+            "Width": 55,
+            "Height": 17,
+            "TextId": "__SingleUse_NYHT",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "AutoSize": true,
+            "Wildcard1": {}
+          },
+          {
+            "Type": "TextArea",
+            "Name": "textArea2",
+            "X": 140,
+            "Y": 8,
+            "Width": 22,
+            "Height": 17,
+            "TextId": "__SingleUse_HO7N",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 205,
+              "Blue": 60
+            },
+            "AutoSize": true,
+            "Wildcard1": {}
+          },
+          {
+            "Type": "TextArea",
+            "Name": "textArea3",
+            "X": 176,
+            "Y": 292,
+            "Width": 17,
+            "Height": 10,
+            "TextId": "__SingleUse_LEVEL1",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 70,
+              "Green": 150,
+              "Blue": 180
+            },
+            "AutoSize": true,
+            "Wildcard1": {}
+          },
+          {
+            "Type": "Image",
+            "Name": "lifeIcon0",
+            "X": 8,
+            "Y": 292,
+            "Width": 12,
+            "Height": 7,
+            "RelativeFilename": "LifeIcon.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "lifeIcon1",
+            "X": 24,
+            "Y": 292,
+            "Width": 12,
+            "Height": 7,
+            "RelativeFilename": "LifeIcon.png"
+          },
+          {
+            "Type": "Image",
+            "Name": "lifeIcon2",
+            "X": 40,
+            "Y": 292,
+            "Width": 12,
+            "Height": 7,
+            "RelativeFilename": "LifeIcon.png"
+          },
+          {
+            "Type": "Box",
+            "Name": "overlayPanel",
+            "X": 20,
+            "Y": 78,
+            "Width": 200,
+            "Height": 176,
+            "Visible": false,
+            "Color": {
+              "Red": 8,
+              "Green": 10,
+              "Blue": 30
+            },
+            "Alpha": 235
+          },
+          {
+            "Type": "TextArea",
+            "Name": "pauseText",
+            "X": 20,
+            "Y": 86,
+            "Width": 200,
+            "Height": 26,
+            "Visible": false,
+            "TextId": "__SingleUse_PAUSE1",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 220,
+              "Blue": 40
+            }
+          },
+          {
+            "Type": "TextArea",
+            "Name": "gameOverText",
+            "Y": 90,
+            "Width": 240,
+            "Height": 40,
+            "Visible": false,
+            "TextId": "__SingleUse_GAMEOVER1",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 60,
+              "Blue": 60
+            }
+          },
+          {
+            "Type": "Image",
+            "Name": "gameOverLogo",
+            "X": 22,
+            "Y": 86,
+            "Width": 196,
+            "Height": 34,
+            "Visible": false,
+            "RelativeFilename": "LogoGameOver.png"
+          },
+          {
+            "Type": "TextArea",
+            "Name": "overlayScoreText",
+            "X": 20,
+            "Y": 118,
+            "Width": 55,
+            "Height": 17,
+            "Visible": false,
+            "TextId": "__SingleUse_NYHT",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "AutoSize": true,
+            "Wildcard1": {}
+          },
+          {
+            "Type": "TextArea",
+            "Name": "overlayHighScoreText",
+            "X": 20,
+            "Y": 136,
+            "Width": 22,
+            "Height": 17,
+            "Visible": false,
+            "TextId": "__SingleUse_HO7N",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 205,
+              "Blue": 60
+            },
+            "AutoSize": true,
+            "Wildcard1": {}
+          },
+          {
+            "Type": "Button",
+            "Name": "continueButton",
+            "X": 30,
+            "Y": 158,
+            "Width": 180,
+            "Height": 36,
+            "Visible": false,
+            "Pressed": "ButtonContinue.png",
+            "Released": "ButtonContinue.png"
+          },
+          {
+            "Type": "Button",
+            "Name": "restartButton",
+            "X": 30,
+            "Y": 198,
+            "Width": 180,
+            "Height": 36,
+            "Visible": false,
+            "Pressed": "ButtonNewGame.png",
+            "Released": "ButtonNewGame.png"
+          }
+        ],
+        "Interactions": [
+          {
+            "InteractionName": "Interaction1",
+            "HasCompletedTrigger": true,
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "flexButton1"
+            },
+            "Action": {
+              "Type": "ActionGotoScreen",
+              "ScreenTransitionType": "ScreenTransitionWipe",
+              "ScreenTransitionDirection": "East",
+              "ActionComponent": "Screen1"
+            }
+          },
+          {
+            "InteractionName": "Interaction2",
+            "Trigger": {
+              "Type": "TriggerInteractionCompleted",
+              "InteractionToTriggerOn": "Interaction1"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "ExitFromScreen2"
+            }
+          },
+          {
+            "InteractionName": "Interaction3",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "fireButton"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "FireBullet"
+            }
+          },
+          {
+            "InteractionName": "Interaction4",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "pauseButton"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "TogglePause"
+            }
+          },
+          {
+            "InteractionName": "Interaction5",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "restartButton"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "RestartGame"
+            }
+          },
+          {
+            "InteractionName": "Interaction6",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "continueButton"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "ContinueGame"
+            }
+          }
+        ]
+      }
+    ],
+    "CustomContainerDefinitions": [],
+    "Name": "SpaceInvaders",
+    "Resolution": {
+      "Width": 240,
+      "Height": 320
+    },
+    "SelectedColorDepth": 16,
+    "StartupScreenName": "Screen1",
+    "SelectedStartupLanguage": "GB",
+    "TouchGfxPath": "../Middlewares/ST/touchgfx",
+    "UIPath": ".",
+    "AvailableColorDepths": [
+      16
+    ],
+    "AvailableLCDs": {
+      "16": "LCD16bpp"
+    },
+    "AvailableSections": [
+      "ExtFlashSection",
+      "IntFlashSection"
+    ],
+    "AvailableResolutions": [
+      {
+        "Width": 240,
+        "Height": 320
+      }
+    ],
+    "PhysicalButtons": [],
+    "FrameworkFeatures": {
+      "LCD16bpp": {
+        "Id": "LCD16bpp",
+        "IsEnabled": true
+      }
+    },
+    "GenerateAssetsCommand": "make -f simulator/gcc/Makefile assets -j8",
+    "PostGenerateCommand": "touchgfx update_project --project-file=simulator/msvs/Application.vcxproj",
+    "PostGenerateTargetCommand": "touchgfx update_project",
+    "CompileSimulatorCommand": "make -f simulator/gcc/Makefile -j8",
+    "RunSimulatorCommand": "build\\bin\\simulator.exe",
+    "CompileTargetCommandOverride": "make -f ../gcc/Makefile -j8",
+    "FlashTargetCommandOverride": "make -f ../gcc/Makefile flash",
+    "LandscapeSkinX": 0,
+    "LandscapeSkinY": 0,
+    "PortraitSkinX": 0,
+    "PortraitSkinY": 0,
+    "DisplayOrientation": "Portrait",
+    "Family": "STM32F4",
+    "SubFamily": "STM32F429/439",
+    "Toolchain": "STM32CubeIDE",
+    "Platform": "m4",
+    "ProjectFile": "../SpaceInvaders.ioc",
+    "OptionalComponentsRoot": "../Middlewares/ST/touchgfx_components",
+    "OptionalComponents": [],
+    "AdditionalFeatures": [
+      "CWRVector",
+      "VectorFonts"
+    ]
+  },
+  "Version": "4.25.0",
+  "CreatedBy": "4.25.0"
+}
