@@ -1,6 +1,6 @@
 # STM32F429I Space Invaders
 
-Game Space Invaders cho môn Hệ nhúng, chạy trên STM32F429I Discovery, giao diện bằng TouchGFX, điều khiển bằng joystick/nút, có buzzer và LED phản hồi.
+Game Space Invaders  chạy trên STM32F429I Discovery, giao diện bằng TouchGFX, điều khiển bằng joystick/nút, có buzzer và LED phản hồi.
 
 ## Tính năng
 
