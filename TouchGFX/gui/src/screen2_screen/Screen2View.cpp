@@ -13,6 +13,8 @@ static const int16_t PLAYER_SPEED = 4;
 
 static const int16_t BULLET_WIDTH = 3;
 static const int16_t BULLET_HEIGHT = 8;
+static const int16_t BOSS_BULLET_WIDTH = 9;
+static const int16_t BOSS_BULLET_HEIGHT = 16;
 static const int16_t PLAYER_BULLET_SPEED = 8;
 static const int16_t ENEMY_BULLET_SPEED = 5;
 
@@ -51,10 +53,54 @@ static const int16_t ITEM_SPEED = 3;
 static const uint32_t INVULNERABLE_TICKS = 90;
 static const uint32_t SHIELD_DURATION = 240;
 static const uint32_t EXPLOSION_TICKS = 18;
+static const uint32_t EXPLOSION_TICKS_FINAL = 40;
+static const uint32_t HIT_SPARK_TICKS = 8;
+static const uint32_t DEATH_FLASH_TICKS = 6;
 static const uint16_t LED_TICKS_SHORT = 6;
 static const uint16_t LED_TICKS_LONG = 15;
 static const uint32_t DOUBLE_SHOT_DURATION = 600;
 static const uint32_t RAPID_FIRE_DURATION = 600;
+
+/* Buzzer "beep patterns": the buzzer is an active type (fixed internal tone,
+   no pitch control), so each SoundId is distinguished purely by its on/off
+   rhythm - short/long beeps and gaps - instead of by frequency. No audio
+   assets needed, just on/ticks pairs. A new sound always cuts off whatever
+   is currently playing, since the buzzer is a single hardware channel and
+   can only play one pattern at a time. */
+static const uint8_t BEEP_ON = 1;
+static const uint8_t BEEP_OFF = 0;
+
+static const Screen2View::ToneStep TONE_SHOOT[] = {
+    { BEEP_ON, 3 }
+};
+static const Screen2View::ToneStep TONE_EXPLOSION[] = {
+    { BEEP_ON, 4 }, { BEEP_OFF, 2 }, { BEEP_ON, 4 }, { BEEP_OFF, 2 }, { BEEP_ON, 8 }
+};
+static const Screen2View::ToneStep TONE_HIT[] = {
+    { BEEP_ON, 2 }
+};
+static const Screen2View::ToneStep TONE_PLAYER_HIT[] = {
+    { BEEP_ON, 6 }, { BEEP_OFF, 4 }, { BEEP_ON, 10 }
+};
+static const Screen2View::ToneStep TONE_GAMEOVER[] = {
+    { BEEP_ON, 8 }, { BEEP_OFF, 5 }, { BEEP_ON, 8 }, { BEEP_OFF, 5 }, { BEEP_ON, 16 }
+};
+static const Screen2View::ToneStep TONE_LEVELUP[] = {
+    { BEEP_ON, 3 }, { BEEP_OFF, 3 }, { BEEP_ON, 3 }, { BEEP_OFF, 3 }, { BEEP_ON, 6 }
+};
+static const Screen2View::ToneStep TONE_POWERUP[] = {
+    { BEEP_ON, 3 }, { BEEP_OFF, 2 }, { BEEP_ON, 3 }, { BEEP_OFF, 2 }, { BEEP_ON, 3 }
+};
+
+/* Active buzzer drive pin (see MX_GPIO_Init's USER CODE section in main.c) -
+   just a plain digital on/off, no PWM/frequency control needed. Using PA5,
+   NOT PA1: PA1 is hard-wired on this board to the I3G4250D gyroscope's INT1
+   line and fighting that signal keeps the buzzer silent even though the
+   wiring/code logic itself is correct. */
+static void buzzerSetOn(bool on)
+{
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, on ? GPIO_PIN_SET : GPIO_PIN_RESET);
+}
 
 Screen2View::Screen2View()
     : alienOffsetX(0),
@@ -62,6 +108,7 @@ Screen2View::Screen2View()
       alienDirection(1),
       alienMoveInterval(20),
       alienMoveIntervalMin(9),
+      alienMoveIntervalBase(20),
       alienFrameToggle(false),
       alienFireCooldown(0),
       alienFireCooldownMax(ALIEN_FIRE_COOLDOWN_BASE),
@@ -90,12 +137,18 @@ Screen2View::Screen2View()
       itemType(POWERUP_RAPID_FIRE),
       explosionActive(false),
       explosionTimer(0),
+      deathFlashActive(false),
+      deathFlashTimer(0),
       phase(PHASE_PLAYING),
       levelClearPending(false),
       tickCount(0),
       rngState(0xACE1U),
       greenLedTicks(0),
-      redLedTicks(0)
+      redLedTicks(0),
+      buzzerSeq(0),
+      buzzerSeqLen(0),
+      buzzerSeqIndex(0),
+      buzzerStepTicksLeft(0)
 {
     aliens[0] = &alien0;
     aliens[1] = &alien1;
@@ -185,6 +238,8 @@ Screen2View::Screen2View()
         playerBulletActive[i] = false;
         playerBulletX[i] = 0;
         playerBulletY[i] = 0;
+        playerBulletTier[i] = BULLET_TIER_NORMAL;
+        playerBulletPierceLeft[i] = 0;
     }
 
     for (uint8_t i = 0; i < MAX_ENEMY_BULLETS; i++)
@@ -306,8 +361,17 @@ void Screen2View::FireBullet()
         return;
     }
 
+    /* Bullet "power" tier is decided once at the moment of firing: Double Shot
+       is the strongest (bigger cyan bolt, pierces one extra alien, double
+       damage to the boss), Rapid Fire keeps normal power but is tinted amber
+       so its faster pace is visually obvious, and with no power-up active the
+       shot stays the plain base bolt. */
+    const BulletTier tier = doubleShotActive ? BULLET_TIER_POWER : (rapidFireActive ? BULLET_TIER_RAPID : BULLET_TIER_NORMAL);
+    const int16_t bulletWidth = (tier == BULLET_TIER_POWER) ? 6 : (tier == BULLET_TIER_RAPID) ? 4 : BULLET_WIDTH;
+
     playerBulletActive[slot] = true;
-    playerBulletX[slot] = localPlayerX + (PLAYER_WIDTH / 2) - (BULLET_WIDTH / 2);
+    setPlayerBulletVisual(slot, tier);
+    playerBulletX[slot] = localPlayerX + (PLAYER_WIDTH / 2) - (bulletWidth / 2);
     playerBulletY[slot] = PLAYER_Y - BULLET_HEIGHT;
     playerBullets[slot]->setXY(playerBulletX[slot], playerBulletY[slot]);
     playerBullets[slot]->setVisible(true);
@@ -327,6 +391,7 @@ void Screen2View::FireBullet()
         if (slot2 != MAX_PLAYER_BULLETS)
         {
             playerBulletActive[slot2] = true;
+            setPlayerBulletVisual(slot2, tier);
             playerBulletX[slot2] = playerBulletX[slot] + 16;
             playerBulletY[slot2] = playerBulletY[slot];
             playerBullets[slot2]->setXY(playerBulletX[slot2], playerBulletY[slot2]);
@@ -338,6 +403,31 @@ void Screen2View::FireBullet()
     fireCooldown = rapidFireActive ? (fireCooldownMax / 3) : fireCooldownMax;
     playSound(SND_SHOOT);
     triggerGreenLed();
+}
+
+void Screen2View::setPlayerBulletVisual(uint8_t slot, BulletTier tier)
+{
+    playerBullets[slot]->invalidate();
+    playerBulletTier[slot] = tier;
+
+    switch (tier)
+    {
+    case BULLET_TIER_POWER:
+        playerBullets[slot]->setBitmap(touchgfx::Bitmap(BITMAP_BULLETPLAYERPOWER_ID));
+        playerBullets[slot]->setWidthHeight(6, 14);
+        playerBulletPierceLeft[slot] = 1;
+        break;
+    case BULLET_TIER_RAPID:
+        playerBullets[slot]->setBitmap(touchgfx::Bitmap(BITMAP_BULLETPLAYERRAPID_ID));
+        playerBullets[slot]->setWidthHeight(4, 9);
+        playerBulletPierceLeft[slot] = 0;
+        break;
+    default:
+        playerBullets[slot]->setBitmap(touchgfx::Bitmap(BITMAP_BULLETPLAYER_ID));
+        playerBullets[slot]->setWidthHeight(BULLET_WIDTH, BULLET_HEIGHT);
+        playerBulletPierceLeft[slot] = 0;
+        break;
+    }
 }
 
 bool Screen2View::isBossLevel() const
@@ -392,6 +482,12 @@ void Screen2View::startNewGame()
     explosion.setVisible(false);
     explosion.invalidate();
 
+    deathFlashActive = false;
+    deathFlashTimer = 0;
+    deathFlash.setAlpha(0);
+    deathFlash.setVisible(false);
+    deathFlash.invalidate();
+
     gameOverText.setVisible(false);
     gameOverText.invalidate();
     gameOverLogo.setVisible(false);
@@ -411,7 +507,8 @@ void Screen2View::startNewGame()
 
     resetPlayerAndBullets();
 
-    alienMoveInterval = 20;
+    alienMoveIntervalBase = 20;
+    alienMoveInterval = alienMoveIntervalBase;
     alienFireCooldownMax = ALIEN_FIRE_COOLDOWN_BASE;
     diveCooldownMax = DIVE_COOLDOWN_BASE;
     diveCooldown = diveCooldownMax;
@@ -482,12 +579,28 @@ void Screen2View::damageBunker(uint8_t index)
     updateBunkerSprite(index);
 }
 
+void Screen2View::crushBunker(uint8_t index)
+{
+    if (!bunkerAlive[index])
+    {
+        return;
+    }
+
+    /* An invader that physically reaches the shelter's row simply flattens it
+       outright (matches how it looks - the alien is standing right on top of
+       it), rather than leaving it sitting there untouched underneath/behind
+       the alien sprite. */
+    bunkerAlive[index] = false;
+    bunkerHitsTaken[index] = BUNKER_MAX_HITS;
+    bunkers[index]->setVisible(false);
+    bunkers[index]->invalidate();
+}
+
 void Screen2View::refreshBunkersUnderAlien(int16_t alienX, int16_t alienY)
 {
-    /* Bunkers are added after aliens so they normally paint on top, but when many
-       aliens move in the same tick, TouchGFX can merge all their dirty rects into
-       one big invalidated area; force the overlapping bunker to redraw so it never
-       stays visually covered by an alien sprite. */
+    /* Once an invader's row overlaps a shelter's row, the shelter gets
+       crushed outright instead of just being force-redrawn underneath the
+       alien sprite. */
     for (uint8_t k = 0; k < BUNKER_COUNT; k++)
     {
         if (!bunkerAlive[k])
@@ -501,7 +614,7 @@ void Screen2View::refreshBunkersUnderAlien(int16_t alienX, int16_t alienY)
         if (alienX < bx + BUNKER_WIDTH && alienX + ALIEN_SIZE > bx &&
             alienY < by + BUNKER_HEIGHT && alienY + ALIEN_SIZE > by)
         {
-            bunkers[k]->invalidate();
+            crushBunker(k);
         }
     }
 }
@@ -624,10 +737,18 @@ void Screen2View::startNextLevel()
     resetPlayerAndBullets();
     resetBunkers();
 
-    if (alienMoveInterval > alienMoveIntervalMin + 1)
+    /* Each level's *starting* speed is its own gently-decreasing baseline,
+       not whatever fully-ramped speed the previous level ended at (aliens
+       also speed up within a level as the formation shrinks/bounces off the
+       walls - see moveAliens()). Without this, level N+1 would begin at
+       level N's fastest in-level speed and only get faster from there,
+       making every new level feel like it starts in a rush. */
+    if (alienMoveIntervalBase > alienMoveIntervalMin + 4)
     {
-        alienMoveInterval--;
+        alienMoveIntervalBase--;
     }
+    alienMoveInterval = alienMoveIntervalBase;
+
     if (alienFireCooldownMax > 30)
     {
         alienFireCooldownMax -= 8;
@@ -658,19 +779,13 @@ void Screen2View::enterGameOver()
     playSound(SND_GAMEOVER);
     triggerRedLed();
 
-    /* The game loop freezes once PHASE_GAMEOVER is set, so any timer-driven
-       animation (explosion fade-out, falling power item, etc.) will never get
-       another handleTickEvent() call to finish clearing itself. Force-clear
-       them now, otherwise they stay stuck on screen forever behind/around the
-       Game Over text. */
-    if (explosionActive)
-    {
-        explosionActive = false;
-        explosionTimer = 0;
-        explosion.setVisible(false);
-        explosion.invalidate();
-    }
-
+    /* The death explosion (and its flash, if any) is intentionally left
+       running: updateExplosion()/updateDeathFlash() are still ticked while
+       PHASE_GAMEOVER is active, so the final-life blast finishes playing out
+       instead of vanishing the instant Game Over appears. Other timer-driven
+       animations (falling power item, etc.) do freeze once PHASE_GAMEOVER is
+       set, so force-clear those now, otherwise they stay stuck on screen
+       forever behind/around the Game Over text. */
     if (itemActive)
     {
         itemActive = false;
@@ -962,6 +1077,9 @@ void Screen2View::maybeAlienFire()
 
     const uint8_t pick = candidates[nextRandom() % count];
     enemyBulletActive[slot] = true;
+    enemyBullets[slot]->invalidate();
+    enemyBullets[slot]->setBitmap(touchgfx::Bitmap(BITMAP_BULLETENEMY_ID));
+    enemyBullets[slot]->setWidthHeight(BULLET_WIDTH, BULLET_HEIGHT);
     enemyBulletX[slot] = aliens[pick]->getX() + (ALIEN_SIZE / 2) - (BULLET_WIDTH / 2);
     enemyBulletY[slot] = aliens[pick]->getY() + ALIEN_SIZE;
     enemyBulletVX[slot] = 0;
@@ -1024,8 +1142,13 @@ void Screen2View::maybeBossFire()
         }
 
         enemyBulletActive[i] = true;
+        enemyBullets[i]->invalidate();
+        /* The boss fires visibly heavier ordinance than a regular invader so
+           its shots read as more dangerous and telegraph the volley. */
+        enemyBullets[i]->setBitmap(touchgfx::Bitmap(BITMAP_BULLETBOSS_ID));
+        enemyBullets[i]->setWidthHeight(BOSS_BULLET_WIDTH, BOSS_BULLET_HEIGHT);
         const int16_t spreadIndex = (int16_t)fired - (int16_t)(shotsThisVolley / 2);
-        enemyBulletX[i] = boss.getX() + (BOSS_WIDTH / 2) - (BULLET_WIDTH / 2) + spreadIndex * 14;
+        enemyBulletX[i] = boss.getX() + (BOSS_WIDTH / 2) - (BOSS_BULLET_WIDTH / 2) + spreadIndex * 14;
         enemyBulletY[i] = boss.getY() + BOSS_HEIGHT;
         enemyBulletVX[i] = (int8_t)(spreadIndex * 2);
         enemyBullets[i]->setXY(enemyBulletX[i], enemyBulletY[i]);
@@ -1092,11 +1215,20 @@ void Screen2View::checkPlayerBulletVsAliens()
                 playerBulletY[b] < ay + ALIEN_SIZE &&
                 playerBulletY[b] + BULLET_HEIGHT > ay)
             {
+                killAlien(i, playerBulletTier[b]);
+
+                if (playerBulletPierceLeft[b] > 0)
+                {
+                    /* Powered-up shot: punches through this alien and keeps
+                       flying, so it can go on to hit another one in the same
+                       column on a later tick instead of fizzling out here. */
+                    playerBulletPierceLeft[b]--;
+                    continue;
+                }
+
                 playerBulletActive[b] = false;
                 playerBullets[b]->setVisible(false);
                 playerBullets[b]->invalidate();
-
-                killAlien(i);
                 break;
             }
         }
@@ -1125,16 +1257,20 @@ void Screen2View::checkPlayerBulletVsBoss()
             playerBulletY[b] < by + BOSS_HEIGHT &&
             playerBulletY[b] + BULLET_HEIGHT > by)
         {
+            const int16_t hitX = playerBulletX[b];
+            const int16_t hitY = playerBulletY[b];
+            const BulletTier tier = playerBulletTier[b];
+
             playerBulletActive[b] = false;
             playerBullets[b]->setVisible(false);
             playerBullets[b]->invalidate();
 
-            damageBoss(1);
+            damageBoss(tier == BULLET_TIER_POWER ? 2 : 1, tier, hitX, hitY);
         }
     }
 }
 
-void Screen2View::killAlien(uint8_t index)
+void Screen2View::killAlien(uint8_t index, BulletTier killerTier)
 {
     const int16_t x = aliens[index]->getX();
     const int16_t y = aliens[index]->getY();
@@ -1143,7 +1279,21 @@ void Screen2View::killAlien(uint8_t index)
     aliens[index]->setVisible(false);
     aliens[index]->invalidate();
 
-    triggerExplosionAt(x - 2, y + 2, EXPLOSION_ALIEN);
+    /* Each bullet tier gets a visibly distinct kill burst: power hits hardest
+       so it gets a bigger/brighter burst, rapid keeps the normal size but
+       recolored to its own warm palette, and a plain shot stays as before. */
+    switch (killerTier)
+    {
+    case BULLET_TIER_POWER:
+        triggerExplosionAt(x - 8, y - 2, EXPLOSION_ALIEN_POWER);
+        break;
+    case BULLET_TIER_RAPID:
+        triggerExplosionAt(x - 2, y + 2, EXPLOSION_ALIEN_RAPID);
+        break;
+    default:
+        triggerExplosionAt(x - 2, y + 2, EXPLOSION_ALIEN);
+        break;
+    }
 
     uint16_t points = SCORE_ALIEN_SMALL;
     switch (alienTier[index])
@@ -1167,7 +1317,7 @@ void Screen2View::killAlien(uint8_t index)
     }
 }
 
-void Screen2View::damageBoss(int16_t amount)
+void Screen2View::damageBoss(int16_t amount, BulletTier killerTier, int16_t hitX, int16_t hitY)
 {
     if (!bossActive)
     {
@@ -1185,6 +1335,26 @@ void Screen2View::damageBoss(int16_t amount)
     if (bossHp < 0)
     {
         bossHp = 0;
+    }
+
+    /* Non-lethal hits get a quick tiered "hit spark" right where the shot
+       landed, so sustained fire on the boss visibly communicates shot
+       strength tick to tick. The lethal hit skips the spark in favor of the
+       one-time death explosion triggered further below. */
+    if (bossHp > 0)
+    {
+        switch (killerTier)
+        {
+        case BULLET_TIER_POWER:
+            triggerExplosionAt(hitX - 2, hitY - 1, EXPLOSION_HIT_POWER);
+            break;
+        case BULLET_TIER_RAPID:
+            triggerExplosionAt(hitX, hitY, EXPLOSION_HIT_RAPID);
+            break;
+        default:
+            triggerExplosionAt(hitX, hitY, EXPLOSION_HIT_NORMAL);
+            break;
+        }
     }
 
     const uint8_t newPhase = (bossHp > (bossHpMax * 2 / 3)) ? 1 : ((bossHp > (bossHpMax / 3)) ? 2 : 3);
@@ -1308,7 +1478,7 @@ void Screen2View::checkAlienVsPlayer()
 
         if (overlap)
         {
-            killAlien(i);
+            killAlien(i, BULLET_TIER_NORMAL);
             kamikazeHit = true;
         }
         else if (alienState[i] == ALIEN_FORMATION && (ay + ALIEN_SIZE) >= (PLAYER_Y - ALIEN_GAMEOVER_MARGIN))
@@ -1338,7 +1508,20 @@ void Screen2View::loseOneLife()
         return;
     }
 
-    triggerExplosionAt(localPlayerX + (PLAYER_WIDTH / 2) - 11, PLAYER_Y + (PLAYER_HEIGHT / 2) - 6, EXPLOSION_PLAYER);
+    const bool isFinalLife = (presenter->getLives() <= 1);
+
+    if (isFinalLife)
+    {
+        /* Last life: a bigger, fierier composited blast plus a brief screen
+           flash, instead of the small routine hit-spark used for the other
+           lives. */
+        triggerExplosionAt(localPlayerX + (PLAYER_WIDTH / 2) - 17, PLAYER_Y + (PLAYER_HEIGHT / 2) - 10, EXPLOSION_PLAYER_FINAL);
+        triggerDeathFlash();
+    }
+    else
+    {
+        triggerExplosionAt(localPlayerX + (PLAYER_WIDTH / 2) - 11, PLAYER_Y + (PLAYER_HEIGHT / 2) - 6, EXPLOSION_PLAYER);
+    }
 
     const bool over = presenter->loseLife();
     playSound(SND_PLAYER_HIT);
@@ -1346,6 +1529,8 @@ void Screen2View::loseOneLife()
 
     if (over)
     {
+        player.setVisible(false);
+        player.invalidate();
         enterGameOver();
     }
     else
@@ -1462,6 +1647,8 @@ void Screen2View::triggerExplosionAt(int16_t x, int16_t y, ExplosionKind kind)
 {
     explosion.invalidate();
 
+    uint32_t duration = EXPLOSION_TICKS;
+
     switch (kind)
     {
     case EXPLOSION_BOSS:
@@ -1471,6 +1658,35 @@ void Screen2View::triggerExplosionAt(int16_t x, int16_t y, ExplosionKind kind)
     case EXPLOSION_PLAYER:
         explosion.setBitmap(touchgfx::Bitmap(BITMAP_EXPLOSIONPLAYER_ID));
         explosion.setWidthHeight(22, 12);
+        break;
+    case EXPLOSION_PLAYER_FINAL:
+        explosion.setBitmap(touchgfx::Bitmap(BITMAP_EXPLOSIONPLAYERBIG_ID));
+        explosion.setWidthHeight(34, 20);
+        duration = EXPLOSION_TICKS_FINAL;
+        break;
+    case EXPLOSION_ALIEN_POWER:
+        explosion.setBitmap(touchgfx::Bitmap(BITMAP_EXPLOSIONALIENPOWER_ID));
+        explosion.setWidthHeight(32, 20);
+        duration = EXPLOSION_TICKS + 6;
+        break;
+    case EXPLOSION_ALIEN_RAPID:
+        explosion.setBitmap(touchgfx::Bitmap(BITMAP_EXPLOSIONALIENRAPID_ID));
+        explosion.setWidthHeight(24, 15);
+        break;
+    case EXPLOSION_HIT_NORMAL:
+        explosion.setBitmap(touchgfx::Bitmap(BITMAP_HITSPARKNORMAL_ID));
+        explosion.setWidthHeight(8, 8);
+        duration = HIT_SPARK_TICKS;
+        break;
+    case EXPLOSION_HIT_RAPID:
+        explosion.setBitmap(touchgfx::Bitmap(BITMAP_HITSPARKRAPID_ID));
+        explosion.setWidthHeight(8, 8);
+        duration = HIT_SPARK_TICKS;
+        break;
+    case EXPLOSION_HIT_POWER:
+        explosion.setBitmap(touchgfx::Bitmap(BITMAP_HITSPARKPOWER_ID));
+        explosion.setWidthHeight(12, 10);
+        duration = HIT_SPARK_TICKS;
         break;
     default:
         explosion.setBitmap(touchgfx::Bitmap(BITMAP_EXPLOSIONALIEN_ID));
@@ -1482,7 +1698,41 @@ void Screen2View::triggerExplosionAt(int16_t x, int16_t y, ExplosionKind kind)
     explosion.setVisible(true);
     explosion.invalidate();
     explosionActive = true;
-    explosionTimer = EXPLOSION_TICKS;
+    explosionTimer = duration;
+}
+
+void Screen2View::triggerDeathFlash()
+{
+    deathFlash.setAlpha(190);
+    deathFlash.setVisible(true);
+    deathFlash.invalidate();
+    deathFlashActive = true;
+    deathFlashTimer = DEATH_FLASH_TICKS;
+}
+
+void Screen2View::updateDeathFlash()
+{
+    if (!deathFlashActive)
+    {
+        return;
+    }
+
+    if (deathFlashTimer > 0)
+    {
+        deathFlashTimer--;
+        /* Step the alpha down so the flash visibly fades rather than
+           popping off abruptly. */
+        const uint8_t alpha = (uint8_t)((190 * deathFlashTimer) / DEATH_FLASH_TICKS);
+        deathFlash.setAlpha(alpha);
+        deathFlash.invalidate();
+    }
+    else
+    {
+        deathFlashActive = false;
+        deathFlash.setAlpha(0);
+        deathFlash.setVisible(false);
+        deathFlash.invalidate();
+    }
 }
 
 void Screen2View::updateExplosion()
@@ -1605,9 +1855,66 @@ void Screen2View::triggerRedLed()
 
 void Screen2View::playSound(SoundId id)
 {
-    (void)id;
-    /* TODO: hook up a buzzer (GPIO/PWM timer) or the on-board audio codec (CS43L22)
-       here. Left as a no-op extension point per project decision. */
+    /* Active buzzer can only beep, not vary pitch, so most short in-game
+       events (shoot/hit-alien/level-up/power-up) end up sounding almost the
+       same and just add noise. Keep the buzzer only for the two moments
+       that actually matter: losing a life and game over. */
+    switch (id)
+    {
+    case SND_PLAYER_HIT:
+        startToneSequence(TONE_PLAYER_HIT, 3);
+        break;
+    case SND_GAMEOVER:
+        startToneSequence(TONE_GAMEOVER, 5);
+        break;
+    case SND_SHOOT:
+    case SND_EXPLOSION:
+    case SND_HIT:
+    case SND_LEVELUP:
+    case SND_POWERUP:
+    default:
+        break;
+    }
+}
+
+void Screen2View::startToneSequence(const ToneStep* steps, uint8_t count)
+{
+    if (count == 0)
+    {
+        return;
+    }
+
+    buzzerSeq = steps;
+    buzzerSeqLen = count;
+    buzzerSeqIndex = 0;
+    buzzerStepTicksLeft = steps[0].ticks;
+    buzzerSetOn(steps[0].on != 0);
+}
+
+void Screen2View::updateBuzzer()
+{
+    if (buzzerSeqLen == 0 || buzzerStepTicksLeft == 0)
+    {
+        return;
+    }
+
+    buzzerStepTicksLeft--;
+    if (buzzerStepTicksLeft > 0)
+    {
+        return;
+    }
+
+    buzzerSeqIndex++;
+    if (buzzerSeqIndex < buzzerSeqLen)
+    {
+        buzzerStepTicksLeft = buzzerSeq[buzzerSeqIndex].ticks;
+        buzzerSetOn(buzzerSeq[buzzerSeqIndex].on != 0);
+    }
+    else
+    {
+        buzzerSetOn(false);
+        buzzerSeqLen = 0;
+    }
 }
 
 void Screen2View::updateScoreTexts()
@@ -1637,7 +1944,7 @@ void Screen2View::refreshHudTexts()
     textArea2.invalidateContent();
     textArea3.invalidateContent();
 
-    updateLifeIcons();
+    updateLivesText();
 }
 
 void Screen2View::updateOverlayScoreTexts()
@@ -1658,17 +1965,15 @@ void Screen2View::updateOverlayScoreTexts()
     overlayHighScoreText.invalidateContent();
 }
 
-void Screen2View::updateLifeIcons()
+void Screen2View::updateLivesText()
 {
-    const uint8_t lives = presenter->getLives();
+    livesText.invalidateContent();
 
-    lifeIcon0.setVisible(lives >= 1);
-    lifeIcon1.setVisible(lives >= 2);
-    lifeIcon2.setVisible(lives >= 3);
+    Unicode::itoa((int32_t)presenter->getLives(), livesBuffer, SCORE_TEXT_BUFFER_SIZE, 10);
+    livesText.setWildcard(livesBuffer);
+    livesText.resizeToCurrentTextWithAlignment();
 
-    lifeIcon0.invalidate();
-    lifeIcon1.invalidate();
-    lifeIcon2.invalidate();
+    livesText.invalidateContent();
 }
 
 void Screen2View::handleTickEvent()
@@ -1676,6 +1981,13 @@ void Screen2View::handleTickEvent()
     Screen2ViewBase::handleTickEvent();
 
     updateLedFeedback();
+
+    /* Keep ticking the death explosion/flash even once the game has frozen
+       (paused or game over), so the final-life blast plays out fully instead
+       of being cut off the instant the phase changes. */
+    updateExplosion();
+    updateDeathFlash();
+    updateBuzzer();
 
     if (phase == PHASE_PAUSED || phase == PHASE_GAMEOVER)
     {
@@ -1708,7 +2020,6 @@ void Screen2View::handleTickEvent()
 
     updatePowerUpTimers();
     updateInvulnerability();
-    updateExplosion();
 
     if (bossActive)
     {

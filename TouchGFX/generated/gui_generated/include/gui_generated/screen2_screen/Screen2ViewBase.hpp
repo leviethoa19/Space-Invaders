@@ -118,9 +118,7 @@ protected:
     touchgfx::TextAreaWithOneWildcard textArea1;
     touchgfx::TextAreaWithOneWildcard textArea2;
     touchgfx::TextAreaWithOneWildcard textArea3;
-    touchgfx::Image lifeIcon0;
-    touchgfx::Image lifeIcon1;
-    touchgfx::Image lifeIcon2;
+    touchgfx::TextAreaWithOneWildcard livesText;
     touchgfx::Box overlayPanel;
     touchgfx::TextArea pauseText;
     touchgfx::TextArea gameOverText;
@@ -129,6 +127,7 @@ protected:
     touchgfx::TextAreaWithOneWildcard overlayHighScoreText;
     touchgfx::Button continueButton;
     touchgfx::Button restartButton;
+    touchgfx::Box deathFlash;
 
 private:
 

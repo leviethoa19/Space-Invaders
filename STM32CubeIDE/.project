@@ -560,6 +560,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_ExplosionPlayer.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/User/generated/image_ExplosionPlayerBig.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_ExplosionPlayerBig.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/User/generated/image_FireIconPressed.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_FireIconPressed.cpp</locationURI>
@@ -673,6 +678,46 @@
 			<name>Application/User/generated/image_TitleBackground.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_TitleBackground.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_bulletboss.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_bulletboss.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_bulletplayerpower.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_bulletplayerpower.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_explosionalienpower.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_explosionalienpower.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_explosionalienrapid.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_explosionalienrapid.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_hitsparknormal.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_hitsparknormal.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_hitsparkrapid.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_hitsparkrapid.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_hitsparkpower.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_hitsparkpower.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/User/generated/image_bulletplayerrapid.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/TouchGFX/generated/images/src/image_bulletplayerrapid.cpp</locationURI>
 		</link>
 		<link>
 			<name>Application/User/generated/LanguageGb.cpp</name>

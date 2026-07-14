@@ -715,6 +715,20 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /* Buzzer drive pin (PA5): active buzzer has its own fixed internal tone, so
+     it only needs a plain digital on/off - drives the buzzer through a series
+     resistor (or an NPN transistor base for higher current draw).
+     NOTE: PA1 was tried first but is NOT free on this board - it is hard-wired
+     on-board to the I3G4250D gyroscope's INT1 line, which fights the GPIO
+     output and prevents the buzzer from ever seeing a clean signal. PA5 is a
+     genuinely unused pin (header pin 21 on P1/P2). */
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+  GPIO_InitStruct.Pin = GPIO_PIN_5;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
   /* USER CODE END MX_GPIO_Init_2 */
 }
 

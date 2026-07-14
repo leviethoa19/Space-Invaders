@@ -713,31 +713,21 @@
             "Wildcard1": {}
           },
           {
-            "Type": "Image",
-            "Name": "lifeIcon0",
+            "Type": "TextArea",
+            "Name": "livesText",
             "X": 8,
-            "Y": 292,
-            "Width": 12,
-            "Height": 7,
-            "RelativeFilename": "LifeIcon.png"
-          },
-          {
-            "Type": "Image",
-            "Name": "lifeIcon1",
-            "X": 24,
-            "Y": 292,
-            "Width": 12,
-            "Height": 7,
-            "RelativeFilename": "LifeIcon.png"
-          },
-          {
-            "Type": "Image",
-            "Name": "lifeIcon2",
-            "X": 40,
-            "Y": 292,
-            "Width": 12,
-            "Height": 7,
-            "RelativeFilename": "LifeIcon.png"
+            "Y": 291,
+            "Width": 46,
+            "Height": 17,
+            "TextId": "__SingleUse_LIVES1",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 40,
+              "Green": 220,
+              "Blue": 60
+            },
+            "AutoSize": true,
+            "Wildcard1": {}
           },
           {
             "Type": "Box",
@@ -852,6 +842,19 @@
             "Visible": false,
             "Pressed": "ButtonNewGame.png",
             "Released": "ButtonNewGame.png"
+          },
+          {
+            "Type": "Box",
+            "Name": "deathFlash",
+            "Width": 240,
+            "Height": 320,
+            "Visible": false,
+            "Color": {
+              "Red": 255,
+              "Green": 210,
+              "Blue": 120
+            },
+            "Alpha": 0
           }
         ],
         "Interactions": [

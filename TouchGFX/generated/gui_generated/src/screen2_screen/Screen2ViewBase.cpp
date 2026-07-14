@@ -297,17 +297,11 @@ Screen2ViewBase::Screen2ViewBase() :
     textArea3.setTypedText(touchgfx::TypedText(T___SINGLEUSE_LEVEL1));
     add(textArea3);
 
-    lifeIcon0.setXY(8, 292);
-    lifeIcon0.setBitmap(touchgfx::Bitmap(BITMAP_LIFEICON_ID));
-    add(lifeIcon0);
-
-    lifeIcon1.setXY(24, 292);
-    lifeIcon1.setBitmap(touchgfx::Bitmap(BITMAP_LIFEICON_ID));
-    add(lifeIcon1);
-
-    lifeIcon2.setXY(40, 292);
-    lifeIcon2.setBitmap(touchgfx::Bitmap(BITMAP_LIFEICON_ID));
-    add(lifeIcon2);
+    livesText.setXY(8, 291);
+    livesText.setColor(touchgfx::Color::getColorFromRGB(40, 220, 60));
+    livesText.setLinespacing(0);
+    livesText.setTypedText(touchgfx::TypedText(T___SINGLEUSE_LIVES1));
+    add(livesText);
 
     overlayPanel.setPosition(20, 78, 200, 176);
     overlayPanel.setColor(touchgfx::Color::getColorFromRGB(8, 10, 30));
@@ -359,6 +353,12 @@ Screen2ViewBase::Screen2ViewBase() :
     restartButton.setVisible(false);
     restartButton.setAction(buttonCallback);
     add(restartButton);
+
+    deathFlash.setPosition(0, 0, 240, 320);
+    deathFlash.setColor(touchgfx::Color::getColorFromRGB(255, 210, 120));
+    deathFlash.setAlpha(0);
+    deathFlash.setVisible(false);
+    add(deathFlash);
 }
 
 Screen2ViewBase::~Screen2ViewBase()
